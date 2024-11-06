@@ -62,3 +62,36 @@ WantedBy=multi-user.target
   sudo systemctl enable push-relay
   sudo systemctl start push-relay
   ```
+
+
+
+
+## fix CORS issue [ localhost ] :
+
+  - Run the following commands
+    ``` bash
+     pip install flask-cors
+    ```
+
+     
+  - app.py                                          [add line 8 & 10]
+    ``` bash
+      7    from my_secrets import API_SECRET, FIREBASE_CONFIG, VAPID_PUBLIC_KEY, BADGE_ICON
+    + 8    from flask_cors import CORS
+    
+      9    app = Flask(__name__)
+    + 10   CORS(app, resources={r"/*": {"origins": "*"}})  # This will allow all origins
+    
+      11   firebase_app = firebase_admin.initialize_app()
+      12   basic_auth = HTTPBasicAuth()
+    ```
+  
+  - firebase_admin/_messaging_encoder.py            [ comment line : 507, 508 ]
+      ``` bash
+        506    link = result.get('link')
+     - 507    # if link is not None and not link.startswith('https://'):
+     - 508        # raise ValueError('WebpushFCMOptio ns.link must be a HTTPS URL.') 
+        509    return result
+      ```
+  
+  - Restart bench and gunicorn server
